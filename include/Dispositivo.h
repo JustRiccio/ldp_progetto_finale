@@ -1,46 +1,39 @@
 #ifndef SISTEMA_H
-#define SISTEMA_H 
+#define SISTEMA_H
 #include <iostream>
 #include <string>
 
 class Dispositivo
 {
-	private:
-        //richiesti nelle specifiche
-        std::string nome;
-        int ID;
-        double consumo;
-        int durata;     //pensavo di tenere tutto in minuti
+private:
+    std::string nome;
+    int id;
+    double consumo;
 
-        //per comodita' (si potrebbe gestire tutto su durata)
-        bool manual;    //da scegliere come gestire
-		int CP;
-        int orario_accensione;
-        int orario_spegnimento;
+    int orario_accensione;
+    bool stato;
 
-	public:
-		Dispositivo(int, std::string, double, int);
+protected:
+    Dispositivo(int, std::string, double, int);
 
-        //getters
-        std::string getNome();
-        int getID();
-        double getConsumo();
-        int getDurata();
-        bool getManual();
-        int getCP();
-        int getOrarioAccensione();
-        int getOrarioSpegnimento();
+public:
+    Dispositivo(const Dispositivo &) = delete;
+    Dispositivo &operator=(const Dispositivo &) = delete;
+    virtual ~Dispositivo();
 
-        //setters
-        void setNome(std::string);
-        void setID(int);
-        void setConsumo(double);
-        void setDurata(int);
-        void setManual(bool);
-        void setCP(int);
-        void setOrarioAccensione(int);
-        void setOrarioSpegnimento(int);
+    // getters
+    std::string getNome();
+    int getID();
+    double getConsumo();
+    int getOrarioAccensione();
+    bool getStato();
 
+    // setters
+    void setNome(std::string);
+    void setID(int);
+    void setConsumo(double);
+    void setOrarioAccensione(int);
+    void setStato(bool);
 };
 
 #endif
