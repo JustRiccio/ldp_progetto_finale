@@ -1,0 +1,10 @@
+Impianto fotovoltaico, 1.5, m
+Lavatrice, -2, c, 110
+Lavastoviglie, -1.5, c, 195
+Pompa di calore + termostato, -2, m
+Tapparelle elettriche, -0.3, c, 1 
+Scaldabagno, -1, m
+Frigorifero, -0.4, m
+Forno a microonde, -0.8, c, 2
+Asciugatrice, -0.5, c, 60
+Televisore, -0.2, c, 60

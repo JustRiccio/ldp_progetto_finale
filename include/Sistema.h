@@ -3,25 +3,33 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 #include "Dispositivo.h"
+#include "Ciclo.h"
+#include "Manuale.h"
 
 class Sistema
 {
 private:
-        // richiesti nelle specifiche
-        std::vector<Dispositivo> dispositivi;
+        // il vettore deve essere di puntatori perchè non può contenere reference a oggetti di tipo differenti
+        // top answer + risposta di Thomas Sablik del seguente link:
+        // https://stackoverflow.com/questions/2394581/pure-virtual-class-and-collections-vector
+        std::vector<std::unique_ptr<Dispositivo>> dispositivi;
         int capacita_max;
         int capacita_attuale; // ricavabile volendo
         int orario;
 
-        // andrebbe aggiunto un vettore che tiene traccia dei dispositivi accesi
 public:
+        Sistema(std::vector<std::unique_ptr<Dispositivo>>);
+        // Constructor
         void accensioneDispositivo(std::string);
         // accende un dispositivo
         void spegnimentoDispositivo(std::string);
         // spegne un dispositivo
+        void impostaOrario(std::string, int);
+        // imposta l'orario di accensione per il dispositivo
         void impostaOrario(std::string, int, int);
-        // imposta l'orario di accensione(entrambi) e spegnimento (solo per dispositivo M)
+        // imposta l'orario di accensione e spegnimento (solo per dispositivo M)
         void rimuoviOrario(std::string);
         // rimuove il timer assocciato al dispositivo(da capire cosa intende la consegna)
         void stampaDispositivi();

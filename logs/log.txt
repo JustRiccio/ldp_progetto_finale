@@ -1,0 +1,5 @@
+accensioneDispositivo: frigorifero
+impostaOrario: dispositivo di prova 0 1439
+rimuoviOrario: frigorifero
+stampaDispositivo: mostra questo dispositivo
+accensioneDispositivo: comando inserito da terminale

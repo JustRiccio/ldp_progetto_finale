@@ -1,0 +1,4 @@
+set frigorifero on
+set "dispositivo di prova" 00:00 23:59
+rm frigorifero
+show "mostra questo dispositivo"
