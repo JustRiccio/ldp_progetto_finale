@@ -1,5 +1,5 @@
-#ifndef DISPOSITIVO_H
-#define DISPOSITIVO_H
+#ifndef SISTEMA_H
+#define SISTEMA_H
 #include <iostream>
 #include <string>
 #include <vector>
