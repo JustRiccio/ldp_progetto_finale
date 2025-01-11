@@ -15,9 +15,12 @@ private:
         // top answer + risposta di Thomas Sablik del seguente link:
         // https://stackoverflow.com/questions/2394581/pure-virtual-class-and-collections-vector
         std::vector<std::unique_ptr<Dispositivo>> dispositivi;
+        //vettore temporaneo per la gestione dei dispositivi(viene aggiornato ogni volte che sono le 00:00)
+        std::vector<std::unique_ptr<Manuale>> dispositiviTmp;
         int capacita_max;
         int capacita_attuale; // ricavabile volendo
         int orario;
+        int ultimo_orario;
 
 public:
         Sistema(std::vector<std::unique_ptr<Dispositivo>>);

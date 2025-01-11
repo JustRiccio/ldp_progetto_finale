@@ -12,17 +12,23 @@
 // }
 
 // Constructor
-Sistema::Sistema(std::vector<std::unique_ptr<Dispositivo>> dispositivi) : capacita_max(4), capacita_attuale(4), orario(0) {
+Sistema::Sistema(std::vector<std::unique_ptr<Dispositivo>> dispositivi) : capacita_max(4), capacita_attuale(capacita_max), orario(0), ultimo_orario(0) {
     this->dispositivi = std::move(dispositivi);
+    this->dispositiviTmp = std::vector<std::unique_ptr<Manuale>>();
 }
 
 /**
  *Accensione di un dispositivo
  *ricerca il dispositivo con il nome passato come parametro 
- *se la capacita' aggiunta non sfora il max viene acceso 
+ *se la capacita' aggiunta non sfora il max del sistema il dispositivo viene acceso 
  */
 void Sistema::accensioneDispositivo(std::string nome) {
+    int tmpID = 0;
+    int tmpConsumo = 0;
+    int tmpOrarioAccensione = 0;
+    int tmpOrarioSpegnimento = 0; 
     bool found = false;
+
     for(auto& dispositivo : dispositivi) {
         if(caseInsensitiveStringCompare(dispositivo->getNome(),nome)){
             //controllo se il dispositivo e' gia' acceso
@@ -30,10 +36,27 @@ void Sistema::accensioneDispositivo(std::string nome) {
                 std::cout << "Dispositivo " << nome << " già acceso" << std::endl;
             }else{
                 //controllo che la capacita' aggiunta non sfori il max
-                if(capacita_attuale + dispositivo->getConsumo() <= capacita_max){
+                if(capacita_attuale + dispositivo->getConsumo() >= 0){
                     capacita_attuale += dispositivo->getConsumo();
                     dispositivo->setStato(true);
+
+                    //da controllare se esiste gia' l'orario di accensione
                     dispositivo->setOrarioAccensione(orario);
+
+                    //aggiungo il dispositivo al vettore temporaneo
+                    if(dynamic_cast<Manuale *>(dispositivo.get())){
+                        tmpID = dispositivo->getID();
+                        tmpConsumo = dispositivo->getConsumo();
+                        tmpOrarioAccensione = dispositivo->getOrarioAccensione();
+                        tmpOrarioSpegnimento = dynamic_cast<Manuale *>(dispositivo.get())->getOrarioSpegnimento(); 
+                    }else{
+                        tmpID = dispositivo->getID();
+                        tmpConsumo = dispositivo->getConsumo();
+                        tmpOrarioAccensione = dispositivo->getOrarioAccensione();
+                        tmpOrarioSpegnimento = -1;
+                    }
+                    dispositivi.push_back(std::make_unique<Manuale>(tmpID, nome, tmpConsumo, tmpOrarioAccensione, tmpOrarioSpegnimento));
+
                     std::cout << "accensioneDispositivo: " << dispositivo->getNome() << std::endl;
                 }
                 else{
@@ -51,7 +74,6 @@ void Sistema::accensioneDispositivo(std::string nome) {
 void Sistema::spegnimentoDispositivo(std::string nome) {
     bool found = false;
     for(auto& dispositivo : dispositivi) {
-        //controllo se il dispositivo e' gia' spento
         if(caseInsensitiveStringCompare(dispositivo->getNome(),nome)){
             if(!dispositivo->getStato()){
                 std::cout << "Dispositivo " << nome << " già spento" << std::endl;
@@ -63,21 +85,31 @@ void Sistema::spegnimentoDispositivo(std::string nome) {
                     if (dynamic_cast<Manuale *>(dispositivo.get())){
                         dynamic_cast<Manuale *>(dispositivo.get())->setOrarioSpegnimento(orario);
                     }
-                    std::cout << "spegnimento Dispositivo: " << nome << std::endl;
+                    std::cout << "Dispositivo: " << nome << " si è spento" << std::endl;
                 }
                 else{
-                    //se trovate qualche frase meglio da stampare
-                    std::cout << "Spegnere altri dispositivi" << std::endl;
+                    std::cout << "Dispositivo: " << nome << " si è spento" << std::endl;
                 }
             }
         }
     }
+    //imposto l'orario di spegnimento del dispositivo nel vettore temporaneo
+    for(auto& dispositivo : dispositiviTmp) {
+        if(caseInsensitiveStringCompare(dispositivo->getNome(),nome) && dynamic_cast<Manuale *>(dispositivo.get())->getOrarioSpegnimento() == -1){
+            dynamic_cast<Manuale *>(dispositivo.get())->setOrarioSpegnimento(orario);
+        }
+    }
+
     if (!found){
         std::cout << "Dispositivo " << nome << " non trovato" << std::endl;
     }
 }
 
 void Sistema::impostaOrario(std::string nome, int orario) {
+    if(orario < this->orario){
+        std::cout << "Orario non valido" << std::endl;
+        return;
+    }
     bool found = false;
     for(auto& dispositivo : dispositivi) {
         if(caseInsensitiveStringCompare(dispositivo->getNome(),nome)){
@@ -93,15 +125,26 @@ void Sistema::impostaOrario(std::string nome, int orario) {
 }
 
 //se un dispositivo e' gia' acceso e si imposta un orario di accensione
-//viene sovrascritto l'orario di accensione e di conseguenza anche tutti i dati sull'accensi0ne precedente
+//viene sovrascritto l'orario di accensione e di conseguenza anche tutti i dati sull'accensione precedente
 void Sistema::impostaOrario(std::string nome, int orario_accensione, int orario_spegnimento) {
+    if(orario_accensione < this->orario || orario_spegnimento < this->orario){
+        std::cout << "Orario non valido" << std::endl;
+        return;
+    }
+    if(orario_accensione >= orario_spegnimento){
+        std::cout << "Orario non valido" << std::endl;
+        return;
+    }
+
     bool found = false;
     for(auto& dispositivo : dispositivi) {
         if(caseInsensitiveStringCompare(dispositivo->getNome(),nome)){
+            if(!dispositivo->getStato()){
+                dispositivo->setOrarioAccensione(orario_accensione);
+            }
             if (dynamic_cast<Manuale *>(dispositivo.get())){
                 dynamic_cast<Manuale *>(dispositivo.get())->setOrarioSpegnimento(orario_spegnimento);
-            }
-            dispositivo->setOrarioAccensione(orario_accensione);
+            }  
             found = true;
         }
     }
@@ -116,11 +159,16 @@ void Sistema::rimuoviOrario(std::string nome) {
     bool found = false;
     for(auto& dispositivo : dispositivi) {
         if(caseInsensitiveStringCompare(dispositivo->getNome(),nome)){
-            if (dynamic_cast<Manuale *>(dispositivo.get())){
-                dynamic_cast<Manuale *>(dispositivo.get())->setOrarioSpegnimento(-1);
+            if(dispositivo->getStato()){
+                std::cout << "Dispositivo " << nome << " attualmente acceso" << std::endl;
+                return;
+            }else{
+                if (dynamic_cast<Manuale *>(dispositivo.get())){
+                    dynamic_cast<Manuale *>(dispositivo.get())->setOrarioSpegnimento(-1);
+                }
+                dispositivo->setOrarioAccensione(-1);
+                found = true;
             }
-            dispositivo->setOrarioAccensione(-1);
-            found = true;
         }
     }
     if (found){
@@ -131,8 +179,9 @@ void Sistema::rimuoviOrario(std::string nome) {
 }
 
 /**
- * Mostra la listadi tutti i dispositivi con la produzione/consumo energetico di ciascuno dalle 00:00 al momentodi inviodelcomando. 
+ * Mostra la listadi tutti i dispositivi con la produzione/consumo energetico di ciascuno dall'ultimo orario di set al momento di invio del comando. 
  * Inoltre mostra la produzione/consumo energetica totale del sistema dalle 00:00 al momento di invio del comando
+ * utilizza due for, perche' il secondo stampa solo i dispostivi che hanno/prodotto/consumato dopo l'ultimo orario di set
  */
 void Sistema::stampaDispositivi() {
     std::cout << "stampaDispositivi \n" << std::endl;
@@ -141,74 +190,26 @@ void Sistema::stampaDispositivi() {
     int consumoTmp = 0;
     
     for(auto& dispositivo : dispositivi) {
-        //se dispositivo e' di tipo manuale
-        if(dynamic_cast<Manuale *>(dispositivo.get())){
-            //se il dispositivo e' acceso dal giorno prima (es. dalle 23.00 alle 8.00)
-            if(dispositivo->getOrarioAccensione() > dynamic_cast<Manuale *>(dispositivo.get())->getOrarioSpegnimento()){
+        stampaDispositivo(dispositivo->getNome());
+    }
 
-                //se il dispositivo e' stato spento prima della chiamata del comando
-                if(dynamic_cast<Manuale *>(dispositivo.get())->getOrarioSpegnimento() < orario){
-                    //kW consumati dalle 00.00 allo spegnimento
-                    consumoTmp += (dispositivo->getConsumo() / 60) * dynamic_cast<Manuale *>(dispositivo.get())->getOrarioSpegnimento(); 
+    for(auto& dispositivo : dispositiviTmp) {
+        if(dispositivo->getOrarioAccensione() <= ultimo_orario){
+            if(dispositivo->getOrarioSpegnimento() >= ultimo_orario){
+                if(dispositivo->getOrarioSpegnimento() <= orario){
+                    consumoTmp += (dispositivo->getConsumo() / 60) * (dispositivo->getOrarioSpegnimento() - ultimo_orario);
                 }
                 else{
-                    //kW consumati dalle 00.00 all'orario corrente
-                    consumoTmp += (dispositivo->getConsumo() / 60) * orario;
-                }
-
-                //se il dispositivo e' stato acceso prima della chiamata del comando
-                if(orario > dispositivo->getOrarioAccensione()){
-                    //kW consumati dal momento dell'accensione all'orario corrente
-                    consumoTmp += (dispositivo->getConsumo() / 60) * (orario - dispositivo->getOrarioAccensione());
-                }
-            }
-            //se il dispositivo e' stato acceso in giornata (es. dalle 8.15 alle 14.00)
-            else{
-                //se il dispositivo e' stato spento prima della chiamata del comando
-                if(orario > dynamic_cast<Manuale *>(dispositivo.get())->getOrarioSpegnimento()){
-                    //kW consumati dall'accensione allo spegnimento
-                    consumoTmp += (dispositivo->getConsumo() / 60) * (dynamic_cast<Manuale *>(dispositivo.get())->getOrarioSpegnimento() - dispositivo->getOrarioAccensione());
-                }
-                //se il dispositivo e' stato acceso e non e' stato ancora spento prima della chiamata al comando
-                else{
-                    //kW consumati dall'accensione all'orario corrente
-                    consumoTmp += (dispositivo->getConsumo() / 60) * (orario - dispositivo->getOrarioAccensione());
+                    consumoTmp += (dispositivo->getConsumo() / 60) * (orario - ultimo_orario);
                 }
             }
         }
-        //se dispositivo e' di tipo ciclo
         else{
-            int durataTmp = dynamic_cast<Ciclo *>(dispositivo.get())->getDurata(); 
-
-            //se il dispositivo e' acceso dal giorno prima (es. dalle 23.00 alle 8.00)
-            if(dispositivo->getOrarioAccensione() + durataTmp > 1440){
-                
-                //se il dispositivo e' stato spento prima della chiamata del comando
-                if(dispositivo.get()->getOrarioAccensione() + durataTmp - 1440 < orario){
-                    //kW consumati dalle 00.00 allo spegnimento
-                    consumoTmp += (dispositivo->getConsumo() / 60) * (dispositivo.get()->getOrarioAccensione() + durataTmp - 1440); 
+            if(dispositivo->getOrarioAccensione() <= orario){
+                if(dispositivo->getOrarioSpegnimento() <= orario){
+                    consumoTmp += (dispositivo->getConsumo() / 60) * (dispositivo->getOrarioSpegnimento() - dispositivo->getOrarioAccensione());
                 }
                 else{
-                    //kW consumati dalle 00.00 all'orario corrente
-                    consumoTmp += (dispositivo->getConsumo() / 60) * orario;
-                }
-
-                //se il dispositivo e' stato acceso prima della chiamata del comando
-                if(orario > dispositivo->getOrarioAccensione()){
-                    //kW consumati dal momento dell'accensione all'orario corrente
-                    consumoTmp += (dispositivo->getConsumo() / 60) * (orario - dispositivo->getOrarioAccensione());
-                }
-            }
-            //se il dispositivo e' stato acceso in giornata (es. dalle 8.15 alle 14.00)
-            else{
-                //se il dispositivo e' stato spento prima della chiamata del comando
-                if(orario > dispositivo->getOrarioAccensione() + durataTmp){
-                    //kW consumati dall'accensione allo spegnimento
-                    consumoTmp += (dispositivo->getConsumo() / 60) * durataTmp;
-                }
-                //se il dispositivo e' stato acceso e non e' stato ancora spento prima della chiamata al comando
-                else{
-                    //kW consumati dall'accensione all'orario corrente
                     consumoTmp += (dispositivo->getConsumo() / 60) * (orario - dispositivo->getOrarioAccensione());
                 }
             }
@@ -216,66 +217,124 @@ void Sistema::stampaDispositivi() {
 
         if(consumoTmp > 0){
             kWProdotti += consumoTmp;
-            std::cout << "Dispositivo "<< dispositivo->getNome() << " ha prodotto" << consumoTmp << " kW \n" << std::endl;
             consumoTmp = 0;
         }
         else{
             kWConsumati -= consumoTmp;
-            std::cout << "Dispositivo "<< dispositivo->getNome() << " ha consumato" << -consumoTmp << " kW \n" << std::endl;
             consumoTmp = 0;
         }
     }
-    std::cout << "Il sistema ha prodotto" << kWProdotti << "kW e consumato " << kWConsumati << "kW " << std::endl;
+    std::cout << "Il sistema ha prodotto " << kWProdotti << "kW e consumato " << kWConsumati << "kW " << std::endl;
 }
 
 void Sistema::stampaDispositivo(std::string nome) {
     bool found = false;
-    for(auto& dispositivo : dispositivi) {
+    int kWProdotti = 0;
+    int kWConsumati = 0;
+    int consumoTmp = 0;
+    
+    for(auto& dispositivo : dispositiviTmp) {
         if(caseInsensitiveStringCompare(dispositivo->getNome(),nome)){
-            if(dispositivo->getConsumo()>0){
-                std::cout << "Dispositivo " << nome << " produce " << dispositivo->getConsumo() << " kW" << std::endl;
-            }else{
-                std::cout << "Dispositivo " << nome << " consuma " << dispositivo->getConsumo() << " kW" << std::endl;
+            if(orario >= dynamic_cast<Manuale *>(dispositivo.get())->getOrarioSpegnimento()){
+                consumoTmp += (dispositivo->getConsumo() / 60) * (dynamic_cast<Manuale *>(dispositivo.get())->getOrarioSpegnimento() - dispositivo->getOrarioAccensione());
+            }
+            else{
+                consumoTmp += (dispositivo->getConsumo() / 60) * (orario - dispositivo->getOrarioAccensione());
             }
             found = true;
         }
+        if(consumoTmp > 0){
+            kWProdotti += consumoTmp;           
+            consumoTmp = 0;
+        }
+        else{
+            kWConsumati -= consumoTmp;           
+            consumoTmp = 0;
+        }
+    }
+    //ci si aspetta che un dispotivo o produce o consuma
+    if(kWConsumati > 0){
+        std::cout << "Dispositivo "<< nome << " ha consumato" << -consumoTmp << " kW" << std::endl;
+    }
+    if(kWProdotti > 0){
+        std::cout << "Dispositivo "<< nome << " ha prodotto" << consumoTmp << " kW" << std::endl;
     }
     if (!found){
-        std::cout << "Dispositivo " << nome << " non trovato" << std::endl;
+        //se non e' stato trovato il dispositivo nel vettore temporaneo controllo la lista dei dispositivi
+        for(auto& dispositivo : dispositivi) {
+            if(caseInsensitiveStringCompare(dispositivo->getNome(),nome)){
+                found = true;
+            }
+        }
+        if (found){
+            std::cout << "Dispositivo "<< nome << " ha prodotto/consumato 0 kW" << std::endl;
+        }
+        else{
+            std::cout << "Dispositivo " << nome << " non trovato" << std::endl;
+        }  
     }
-    //std::cout << "stampaDispositivo: " << nome << std::endl;
 }
 
 void Sistema::impostaOrarioSistema(int orario) {
+    //se l'orario e' maggiore di quello attuale
+    if(this->orario < orario){
+        //itera ogni minuto
+        for(int min = this->orario; min < orario; min++){
+            for(auto& dispositivo : dispositivi) {
+                if(dynamic_cast<Manuale *>(dispositivo.get())){
+                    
+                    if(dynamic_cast<Manuale *>(dispositivo.get())->getOrarioSpegnimento() <= min && dispositivo->getStato()){
+                        spegnimentoDispositivo(dispositivo->getNome());
+                    }
+                    if(dispositivo->getOrarioAccensione() <= min && !dispositivo->getStato()){
+                        spegnimentoDispositivo(dispositivo->getNome());
+                    }
+                }
+                else{
+                    if(dispositivo->getOrarioAccensione() + dynamic_cast<Ciclo *>(dispositivo.get())->getDurata() <= min && dispositivo->getStato()){
+                        spegnimentoDispositivo(dispositivo->getNome());
+                    }
+                    if(dispositivo->getOrarioAccensione() <= min && !dispositivo->getStato()){
+                        spegnimentoDispositivo(dispositivo->getNome());
+                    }
+                }
+            }
+        }
+    }
+    this->ultimo_orario = this->orario;
     this->orario = orario;
     std::cout << "impostaOrarioSistema: " << orario << std::endl;
-    //da aggiungere una funzione che sistemi i dispositivi in base all'orario
-    //tipo void gestioneCambioOrario();
 }
 
 void Sistema::resetOrarioSistema() {
     this->orario = 0;
+    this->ultimo_orario = 0;
+    //svuoto il vettore temporaneo
+    dispositiviTmp.clear();
     std::cout << "resetOrarioSistema" << std::endl;
 }
 
 // resetta tutti i timer tranne quelli accesi al momento del comando
-//manuale togli inizio e fine
-//ciclico togli l'inizio
 void Sistema::resetOrariDispositivi() {
     for(auto& dispositivo : dispositivi) {
         if(!dispositivo->getStato()){    
-            if (dynamic_cast<Manuale *>(dispositivo.get())){
-                //::::::::::::::::::::::::::::::::
-                dynamic_cast<Manuale *>(dispositivo.get())->setOrarioSpegnimento(-1);
-                //::::::::::::::::::::::::::::::::
-            }
             dispositivo->setOrarioAccensione(-1);
+        }
+        if (dynamic_cast<Manuale *>(dispositivo.get())){
+            dynamic_cast<Manuale *>(dispositivo.get())->setOrarioSpegnimento(-1);
+            for(auto& dispositivoTmp : dispositiviTmp) {
+                if (dynamic_cast<Manuale *>(dispositivoTmp.get())->getOrarioSpegnimento() > orario
+                    && dynamic_cast<Manuale *>(dispositivoTmp.get())->getNome() == dispositivo->getNome()){
+                    dynamic_cast<Manuale *>(dispositivoTmp.get())->setOrarioSpegnimento(-1);
+                }
+            }
         }
     }
     std::cout << "resetOrariDispositivi" << std::endl;
 }
 
 void Sistema::resetSistema() {
+    resetOrarioSistema();
     for(auto& dispositivo : dispositivi) {
         dispositivo->setStato(false);
         if (dynamic_cast<Manuale *>(dispositivo.get())){
