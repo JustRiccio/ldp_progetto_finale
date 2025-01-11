@@ -1,4 +1,4 @@
-#include "C:\Users\loren\OneDrive\Documenti\GitHub\ldp_progetto_finale\include\Sistema.h"
+#include "Sistema.h"
 
 // // test per disambiguare il tipo di dispositivo (simile a instanceof di Java)
 // // sarà molto importante nel momento in cui si dovrà gestire il polimorfismo
