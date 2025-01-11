@@ -45,6 +45,8 @@ public:
         // Rimuove i timer di tutti i dispositivi
         void resetSistema();
         // resetOrarioSistema+resetOrariDispositivi+spegne tutti i dispositivi
+        bool caseInsensitiveStringCompare(const std::string&, const std::string&);
+        // funzione per comparare stringhe case insensitive
 };
 
 #endif
