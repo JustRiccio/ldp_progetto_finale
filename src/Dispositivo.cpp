@@ -2,7 +2,7 @@
 
 // Constructor
 Dispositivo::Dispositivo(int id, std::string nome, double consumo, int orario_accensione)
-    : id(id), nome(nome), consumo(consumo), orario_accensione(orario_accensione), stato(false) {}
+    : id(id), nome(nome), consumo(consumo), consumo_totale(0), orario_accensione(orario_accensione), stato(false) {}
 
 // Destructor
 Dispositivo::~Dispositivo() {}
@@ -22,6 +22,12 @@ double Dispositivo::getConsumo()
 {
     return consumo;
 }
+
+double Dispositivo::getConsumoTotale()
+{
+    return consumo_totale;
+}
+
 
 int Dispositivo::getOrarioAccensione()
 {
@@ -48,6 +54,12 @@ void Dispositivo::setConsumo(double consumo)
 {
     this->consumo = consumo;
 }
+
+void Dispositivo::setConsumoTotale(double consumo)
+{
+    this->consumo_totale = consumo;
+}
+
 
 void Dispositivo::setOrarioAccensione(int orario_accensione)
 {

@@ -9,6 +9,7 @@ private:
     std::string nome;
     int id;
     double consumo;
+    double consumo_totale;
 
     int orario_accensione;
     bool stato;
@@ -25,6 +26,7 @@ public:
     std::string getNome();
     int getID();
     double getConsumo();
+    double getConsumoTotale();
     int getOrarioAccensione();
     bool getStato();
 
@@ -32,6 +34,7 @@ public:
     void setNome(std::string);
     void setID(int);
     void setConsumo(double);
+    void setConsumoTotale(double);
     void setOrarioAccensione(int);
     void setStato(bool);
 };
