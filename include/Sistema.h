@@ -47,6 +47,8 @@ public:
         // resetOrarioSistema+resetOrariDispositivi+spegne tutti i dispositivi
         bool caseInsensitiveStringCompare(const std::string&, const std::string&);
         // funzione per comparare stringhe case insensitive
+        void stampaOrario(int);
+        //stampa l'orario del sistema
 };
 
 #endif
