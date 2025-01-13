@@ -2,8 +2,6 @@
 #include <sstream>
 #include "Sistema.h"
 
-// TODO: mettere le print dell'orario ad ogni azione (es.: [12:30] accensione fornelli)
-
 // Constructor
 Sistema::Sistema(std::vector<std::unique_ptr<Dispositivo>> dispositivi) : capacita_max(4), capacita_attuale(0), orario(0)
 {
@@ -23,7 +21,7 @@ void Sistema::accensioneDispositivo(std::string nome)
     {
         if (caseInsensitiveStringCompare(dispositivo->getNome(), nome))
         {
-            // controllo se il dispositivo e' gia' acceso
+            // Controllo se il dispositivo è gia' acceso
             if (dispositivo->getStato())
             {
                 std::cout << stampaOrario(this->orario) << "Dispositivo " << nome << " gia' acceso" << std::endl;
@@ -33,13 +31,14 @@ void Sistema::accensioneDispositivo(std::string nome)
                 // TODO: accendi comunque e in caso spegni i dispositivi se superano la potenza max
                 // eventualmente aggiungendo regole specifiche (esempi nel pdf)
 
-                // controllo che la capacita' aggiunta non sfori il max
+                // Controllo che la capacita' aggiunta non sfori il max
                 capacita_attuale += dispositivo->getConsumo();
                 dispositivo->setStato(true);
 
-                // da controllare se esiste gia' l'orario di accensione
-                dispositivo->setOrarioAccensione(orario);
-
+                // Controllo se l'orario di accensione non è stato settato
+                if(dispositivo->getOrarioAccensione() == -1) {
+                    dispositivo->setOrarioAccensione(orario);
+                }
                 std::cout << stampaOrario(this->orario) << "Il dispositivo '" << dispositivo->getNome() << "' si è acceso" << std::endl;
             }
             found = true;
@@ -305,7 +304,7 @@ void Sistema::impostaOrarioSistema(int orario)
     // se l'orario e' maggiore di quello attuale
     while (this->orario < orario)
     {
-        // itera ogni minuto
+        // Ogni iterazione simula un minuto
         this->orario += 1;
         for (auto &dispositivo : dispositivi)
         {
@@ -339,8 +338,7 @@ void Sistema::impostaOrarioSistema(int orario)
 // TODO: controllare che faccia quello richiesto dalle specifiche che l'ho scritto di fretta
 void Sistema::resetOrarioSistema()
 {
-    stampaOrario(this->orario);
-    std::cout << "resetOrarioSistema" << std::endl;
+    std::cout << stampaOrario(this->orario) << "L'orario del sistema è stato resettato" << std::endl;
     this->orario = 0;
     for (auto &dispositivo : dispositivi)
     {
@@ -353,8 +351,7 @@ void Sistema::resetOrarioSistema()
 // TODO: controllare che faccia quello richiesto dalle specifiche che l'ho scritto di fretta
 void Sistema::resetOrariDispositivi()
 {
-    stampaOrario(this->orario);
-    std::cout << "resetOrariDispositivi" << std::endl;
+    std::cout << stampaOrario(this->orario) << "I timer dei dispositivi sono stati resettati" << std::endl;
 
     for (auto &dispositivo : dispositivi)
     {
@@ -370,11 +367,11 @@ void Sistema::resetOrariDispositivi()
     }
 }
 
-// TODO: controllare che faccia quello richiesto dalle specifiche che l'ho scritto di fretta
+// Riporta il sistema alle condizioni iniziali
+// L’orario viene impostato a 00:00, tutti i timer vengono rimossi e tutti i dispositivi vengono spenti
 void Sistema::resetSistema()
 {
-    stampaOrario(this->orario);
-    std::cout << "resetSistema" << std::endl;
+    std::cout << stampaOrario(this->orario) << "Il sistema è stato portato alle condizioni iniziali" << std::endl;
     resetOrarioSistema();
 
     for (auto &dispositivo : dispositivi)
@@ -389,7 +386,7 @@ void Sistema::resetSistema()
     }    
 }
 
-// funzione per comparare stringhe case insensitive
+// Comparazione case insensitive tra due stringhe
 bool Sistema::caseInsensitiveStringCompare(const std::string &str1, const std::string &str2)
 {
     if (str1.size() != str2.size())
@@ -406,6 +403,7 @@ bool Sistema::caseInsensitiveStringCompare(const std::string &str1, const std::s
     return true;
 }
 
+// Stampa orario in formato hh:mm
 std::string Sistema::stampaOrario(int orario) {
     int ora = orario / 60;
     int minuti = orario % 60;
