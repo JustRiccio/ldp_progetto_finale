@@ -1,5 +1,101 @@
-accensioneDispositivo: frigorifero
-impostaOrario: dispositivo di prova 0 1439
-rimuoviOrario: frigorifero
-stampaDispositivo: mostra questo dispositivo
-accensioneDispositivo: comando inserito da terminale
+set lavatrice 6:23 12:00
+[00:00] Impostato un timer per il dispositivo 'lavatrice' alle [06:23] 
+set "impianto fotovoltaico" 12:30 22:00
+[00:00] Impostato un timer per il dispositivo 'impianto fotovoltaico' dalle [12:30]  alle [22:00] 
+set time 13:00
+[00:00] L'orario attuale e' 00:00
+[06:23] Il dispositivo 'Lavatrice' si e' acceso
+[08:13] Il dispositivo 'Lavatrice' si e' spento
+[12:30] Il dispositivo 'Impianto fotovoltaico' si e' acceso
+[13:00] L'orario attuale e' 13:00
+show "impianto fotovoltaico"
+[13:00] Il dispositivo 'impianto fotovoltaico' ha attualmente prodotto 0.75kWh
+rm "impianto fotovoltaico"
+[13:00] Il dispositivo 'impianto fotovoltaico' e' attualmente acceso
+show
+[13:00] Attualmente il sistema ha prodotto 0.75kWh e consumato 3.66667kWh 
+	Nello specifico: 
+	- Il dispositivo 'Impianto fotovoltaico' ha attualmente prodotto 0.75kWh
+	- Il dispositivo 'Lavatrice' ha attualmente consumato 3.66667kWh
+	- Il dispositivo 'Lavastoviglie' ha attualmente consumato 0kWh
+	- Il dispositivo 'Pompa di calore + termostato' ha attualmente consumato 0kWh
+	- Il dispositivo 'Tapparelle elettriche' ha attualmente consumato 0kWh
+	- Il dispositivo 'Scaldabagno' ha attualmente consumato 0kWh
+	- Il dispositivo 'Frigorifero' ha attualmente consumato 0kWh
+	- Il dispositivo 'Forno a microonde' ha attualmente consumato 0kWh
+	- Il dispositivo 'Asciugatrice' ha attualmente consumato 0kWh
+	- Il dispositivo 'Televisore' ha attualmente consumato 0kWh
+reset all
+[13:00] Il sistema e' stato portato alle condizioni iniziali
+[13:00] L'orario del sistema e' stato resettato
+set scaldabagno 05:00 07:00
+[00:00] Impostato un timer per il dispositivo 'scaldabagno' dalle [05:00]  alle [07:00] 
+set time 06:00
+[00:00] L'orario attuale e' 00:00
+[05:00] Il dispositivo 'Scaldabagno' si e' acceso
+[06:00] L'orario attuale e' 06:00
+show
+[06:00] Attualmente il sistema ha prodotto 0kWh e consumato 1kWh 
+	Nello specifico: 
+	- Il dispositivo 'Impianto fotovoltaico' ha attualmente consumato 0kWh
+	- Il dispositivo 'Lavatrice' ha attualmente consumato 0kWh
+	- Il dispositivo 'Lavastoviglie' ha attualmente consumato 0kWh
+	- Il dispositivo 'Pompa di calore + termostato' ha attualmente consumato 0kWh
+	- Il dispositivo 'Tapparelle elettriche' ha attualmente consumato 0kWh
+	- Il dispositivo 'Scaldabagno' ha attualmente consumato 1kWh
+	- Il dispositivo 'Frigorifero' ha attualmente consumato 0kWh
+	- Il dispositivo 'Forno a microonde' ha attualmente consumato 0kWh
+	- Il dispositivo 'Asciugatrice' ha attualmente consumato 0kWh
+	- Il dispositivo 'Televisore' ha attualmente consumato 0kWh
+show scaldabagno
+[06:00] Il dispositivo 'scaldabagno' ha attualmente consumato 1kWh
+set time 08:00
+[06:00] L'orario attuale e' 06:00
+[07:00] Il dispositivo 'Scaldabagno' si e' spento
+[08:00] L'orario attuale e' 08:00
+set lavatrice 9:00
+[08:00] Impostato l'orario di accensione del dispositivo 'lavatrice' alle ore [09:00] 
+set time 13:00
+[08:00] L'orario attuale e' 08:00
+[09:00] Il dispositivo 'Lavatrice' si e' acceso
+[10:50] Il dispositivo 'Lavatrice' si e' spento
+[13:00] L'orario attuale e' 13:00
+show
+[13:00] Attualmente il sistema ha prodotto 0kWh e consumato 5.66667kWh 
+	Nello specifico: 
+	- Il dispositivo 'Impianto fotovoltaico' ha attualmente consumato 0kWh
+	- Il dispositivo 'Lavatrice' ha attualmente consumato 3.66667kWh
+	- Il dispositivo 'Lavastoviglie' ha attualmente consumato 0kWh
+	- Il dispositivo 'Pompa di calore + termostato' ha attualmente consumato 0kWh
+	- Il dispositivo 'Tapparelle elettriche' ha attualmente consumato 0kWh
+	- Il dispositivo 'Scaldabagno' ha attualmente consumato 2kWh
+	- Il dispositivo 'Frigorifero' ha attualmente consumato 0kWh
+	- Il dispositivo 'Forno a microonde' ha attualmente consumato 0kWh
+	- Il dispositivo 'Asciugatrice' ha attualmente consumato 0kWh
+	- Il dispositivo 'Televisore' ha attualmente consumato 0kWh
+set "impianto fotovoltaico" on
+[13:00] Il dispositivo 'Impianto fotovoltaico' si e' acceso
+set "impianto fotovoltaico" 14:00 15:00
+[13:00] Il dispositivo 'impianto fotovoltaico' ha gia' un timer impostato
+set time 16:00
+[13:00] L'orario attuale e' 13:00
+[16:00] L'orario attuale e' 16:00
+set "impianto fotovoltaico" off
+[16:00] Il dispositivo 'impianto fotovoltaico' si e' spento
+show
+[16:00] Attualmente il sistema ha prodotto 4.5kWh e consumato 5.66667kWh 
+	Nello specifico: 
+	- Il dispositivo 'Impianto fotovoltaico' ha attualmente prodotto 4.5kWh
+	- Il dispositivo 'Lavatrice' ha attualmente consumato 3.66667kWh
+	- Il dispositivo 'Lavastoviglie' ha attualmente consumato 0kWh
+	- Il dispositivo 'Pompa di calore + termostato' ha attualmente consumato 0kWh
+	- Il dispositivo 'Tapparelle elettriche' ha attualmente consumato 0kWh
+	- Il dispositivo 'Scaldabagno' ha attualmente consumato 2kWh
+	- Il dispositivo 'Frigorifero' ha attualmente consumato 0kWh
+	- Il dispositivo 'Forno a microonde' ha attualmente consumato 0kWh
+	- Il dispositivo 'Asciugatrice' ha attualmente consumato 0kWh
+	- Il dispositivo 'Televisore' ha attualmente consumato 0kWh
+reset all
+[16:00] Il sistema e' stato portato alle condizioni iniziali
+[16:00] L'orario del sistema e' stato resettato
+exit
