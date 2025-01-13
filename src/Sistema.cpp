@@ -1,3 +1,5 @@
+#include <iomanip>
+#include <sstream>
 #include "Sistema.h"
 
 // TODO: mettere le print dell'orario ad ogni azione (es.: [12:30] accensione fornelli)
@@ -24,8 +26,7 @@ void Sistema::accensioneDispositivo(std::string nome)
             // controllo se il dispositivo e' gia' acceso
             if (dispositivo->getStato())
             {
-                stampaOrario(this->orario);
-                std::cout << "Dispositivo " << nome << " gia' acceso" << std::endl;
+                std::cout << stampaOrario(this->orario) << "Dispositivo " << nome << " gia' acceso" << std::endl;
             }
             else
             {
@@ -39,8 +40,7 @@ void Sistema::accensioneDispositivo(std::string nome)
                 // da controllare se esiste gia' l'orario di accensione
                 dispositivo->setOrarioAccensione(orario);
 
-                stampaOrario(this->orario);
-                std::cout << "accensioneDispositivo: " << dispositivo->getNome() << std::endl;
+                std::cout << stampaOrario(this->orario) << "Il dispositivo '" << dispositivo->getNome() << "' si è acceso" << std::endl;
             }
             found = true;
             break;
@@ -48,8 +48,7 @@ void Sistema::accensioneDispositivo(std::string nome)
     }
     if (!found)
     {
-        stampaOrario(this->orario);
-        std::cout << "Dispositivo " << nome << " non trovato" << std::endl;
+        std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' non è stato trovato" << std::endl;
     }
 }
 
@@ -62,8 +61,7 @@ void Sistema::spegnimentoDispositivo(std::string nome)
         {
             if (!dispositivo->getStato())
             {
-                stampaOrario(this->orario);
-                std::cout << "Dispositivo " << nome << " gia' spento" << std::endl;
+                std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' è gia' spento" << std::endl;
             }
             else
             {
@@ -78,8 +76,7 @@ void Sistema::spegnimentoDispositivo(std::string nome)
                 {
                     dynamic_cast<Manuale *>(dispositivo.get())->setOrarioSpegnimento(orario);
                 }
-                stampaOrario(this->orario);
-                std::cout << "Dispositivo: " << nome << " si e' spento" << std::endl;
+                std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' si e' spento" << std::endl;
                 dispositivo->setConsumoTotale(dispositivo->getConsumoTotale() + (orario - dispositivo->getOrarioAccensione()) * dispositivo->getConsumo() / 60);
                 dispositivo->setOrarioAccensione(-1);
             }
@@ -90,8 +87,7 @@ void Sistema::spegnimentoDispositivo(std::string nome)
 
     if (!found)
     {
-        stampaOrario(this->orario);
-        std::cout << "Dispositivo " << nome << " non trovato" << std::endl;
+        std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' non è stato trovato" << std::endl;
     }
 }
 
@@ -99,8 +95,7 @@ void Sistema::impostaOrario(std::string nome, int orario)
 {
     if (orario <= this->orario)
     {
-        stampaOrario(this->orario);
-        std::cout << "Orario inserito non valido" << std::endl;
+        std::cout << stampaOrario(this->orario) << "Orario inserito non valido" << std::endl;
         return;
     }
     bool found = false;
@@ -110,14 +105,12 @@ void Sistema::impostaOrario(std::string nome, int orario)
         {
             if (dispositivo->getOrarioAccensione() != -1)
             {
-                stampaOrario(this->orario);
-                std::cout << "Il dispositivo ha gia' un timer impostato" << std::endl;
+                std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' ha gia' un timer impostato" << std::endl;
             }
             else
             {
                 dispositivo->setOrarioAccensione(orario);
-                stampaOrario(this->orario);
-                std::cout << "set orario accensione" << std::endl;
+                std::cout << stampaOrario(this->orario) << "Impostato l'orario di accensione del dispositivo '" << nome << "' alle ore " << stampaOrario(orario) << std::endl;
             }
             found = true;
             break;
@@ -125,8 +118,7 @@ void Sistema::impostaOrario(std::string nome, int orario)
     }
     if (!found)
     {
-        stampaOrario(this->orario);
-        std::cout << "Dispositivo " << nome << " non trovato" << std::endl;
+        std::cout << stampaOrario(this->orario) << "il dispositivo '" << nome << "' non è stato trovato" << std::endl;
     }
 }
 
@@ -136,14 +128,12 @@ void Sistema::impostaOrario(std::string nome, int orario_accensione, int orario_
 {
     if (orario_accensione <= this->orario || orario_spegnimento <= this->orario)
     {
-        stampaOrario(this->orario);
-        std::cout << "Orario non valido" << std::endl;
+        std::cout << stampaOrario(this->orario) << "L'orario non è valido" << std::endl;
         return;
     }
     if (orario_accensione >= orario_spegnimento)
     {
-        stampaOrario(this->orario);
-        std::cout << "Orario non valido" << std::endl;
+        std::cout << stampaOrario(this->orario) << "L'orario non è valido" << std::endl;
         return;
     }
 
@@ -154,8 +144,7 @@ void Sistema::impostaOrario(std::string nome, int orario_accensione, int orario_
         {
             if (dispositivo->getOrarioAccensione() != -1)
             {
-                stampaOrario(this->orario);
-                std::cout << "Il dispositivo ha gia' un timer impostato" << std::endl;
+                std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' ha gia' un timer impostato" << std::endl;
             }
             else
             {
@@ -164,13 +153,17 @@ void Sistema::impostaOrario(std::string nome, int orario_accensione, int orario_
                 {
                     dispositivo->setOrarioAccensione(orario_accensione);
                 }
+                // Stampa differenziata per i due tipi di dispositivi
+                // Settaggio dell'orario di spegnimento per manuali
                 if (dynamic_cast<Manuale *>(dispositivo.get()))
                 {
                     dynamic_cast<Manuale *>(dispositivo.get())->setOrarioSpegnimento(orario_spegnimento);
+                    std::cout << stampaOrario(this->orario) << "Impostato un timer per il dispositivo '" << nome << "' dalle " << stampaOrario(orario_accensione) << " alle " << stampaOrario(orario_spegnimento) << std::endl;
                 }
-                stampaOrario(this->orario);
-                // TODO: stampa diversa se il dispositivo e' ciclico o meno
-                std::cout << "impostaOrario: " << nome << " " << orario_accensione << " " << orario_spegnimento << std::endl;
+                else if (dynamic_cast<Ciclo *>(dispositivo.get()))
+                {
+                    std::cout << stampaOrario(this->orario) << "Impostato un timer per il dispositivo '" << nome << "' alle " << stampaOrario(orario_accensione) << std::endl;
+                }
             }
             found = true;
             break;
@@ -178,8 +171,7 @@ void Sistema::impostaOrario(std::string nome, int orario_accensione, int orario_
     }
     if (!found)
     {
-        stampaOrario(this->orario);
-        std::cout << "Dispositivo " << nome << " non trovato" << std::endl;
+        std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' non è stato trovato" << std::endl;
     }
 }
 
@@ -192,8 +184,7 @@ void Sistema::rimuoviOrario(std::string nome)
         {
             if (dispositivo->getStato())
             {
-                stampaOrario(this->orario);
-                std::cout << "Dispositivo " << nome << " attualmente acceso" << std::endl;
+                std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' è attualmente acceso" << std::endl;
                 return;
             }
             else
@@ -208,15 +199,14 @@ void Sistema::rimuoviOrario(std::string nome)
             }
         }
     }
+    std::cout << stampaOrario(this->orario);
     if (found)
     {
-        stampaOrario(this->orario);
-        std::cout << "rimuoviOrario: " << nome << std::endl;
+        std::cout << "Rimosso il timer dal dispositivo '" << nome << "'" <<  std::endl;
     }
     else
     {
-        stampaOrario(this->orario);
-        std::cout << "Dispositivo " << nome << " non trovato" << std::endl;
+        std::cout << "Il dispositivo '" << nome << "' non è stato trovato" << std::endl;
     }
 }
 
@@ -231,16 +221,9 @@ void Sistema::stampaDispositivi()
     // vale a dire che i consumi, sia dei singoli dispositivi, che di conseguenza totali, vengono aggiornati
     // solo quando un dispostivo viene spento, mentre qui magari sarebbe
     // da stampare anche quello che un dispositivo ancora acceso sta consumando
-    std::cout << "stampaDispositivi \n"
-              << std::endl;
     double kWProdotti = 0;
     double kWConsumati = 0;
     double consumoTmp = 0;
-
-    for (auto &dispositivo : dispositivi)
-    {
-        stampaDispositivo(dispositivo->getNome());
-    }
 
     for (auto &dispositivo : dispositivi)
     {
@@ -255,11 +238,16 @@ void Sistema::stampaDispositivi()
             kWConsumati -= consumoTmp;
         }
     }
-    stampaOrario(this->orario);
-    std::cout << "Il sistema ha prodotto " << kWProdotti << "kWh e consumato " << kWConsumati << "kWh " << std::endl;
+    std::cout << stampaOrario(this->orario) << "Attualmente il sistema ha prodotto " << kWProdotti << "kWh e consumato " << kWConsumati << "kWh " << std::endl;
+    std::cout << "\tNello specifico: " << std::endl;
+    for (auto &dispositivo : dispositivi)
+    {
+        std::cout << "\t- ";
+        stampaDispositivo(dispositivo->getNome(), false);
+    }
 }
 
-void Sistema::stampaDispositivo(std::string nome)
+void Sistema::stampaDispositivo(std::string nome, bool stampaOrarioFlag = true)
 {
     //TODO: per ora non viene tenuto conto dei consumi dei dispositivi ancora accesi.
     // vale a dire che i consumi, sia dei singoli dispositivi, che di conseguenza totali, vengono aggiornati
@@ -289,29 +277,30 @@ void Sistema::stampaDispositivo(std::string nome)
     }
     if (!found)
     {
-        //stampaOrario(this->orario);
-        std::cout << "Dispositivo " << nome << " non trovato" << std::endl;
+        std::cout << "Il dispositivo '" << nome << "' non è stato trovato" << std::endl;
     }
     else
     {
-        // ci si aspetta che un dispotivo o produce o consuma
+        if (stampaOrarioFlag)
+        {
+            std::cout << stampaOrario(this->orario);
+        }
+        // ci si aspetta che un dispositivo o produce o consuma
         if (kWConsumati >= 0)
         {
-            //stampaOrario(this->orario);
-            std::cout << "Dispositivo " << nome << " ha consumato " << consumoTmp << "kWh" << std::endl;
+            std::cout << "Il dispositivo '" << nome << "' ha attualmente consumato " << consumoTmp << "kWh" << std::endl;
         }
         if (kWProdotti > 0)
         {
-            //stampaOrario(this->orario);
-            std::cout << "Dispositivo " << nome << " ha prodotto " << consumoTmp << "kWh" << std::endl;
+            std::cout << "Il dispositivo '" << nome << "' ha attualmente prodotto " << consumoTmp << "kWh" << std::endl;
         }
     }
 }
 
 void Sistema::impostaOrarioSistema(int orario)
 {
-    stampaOrario(this->orario);
-    std::cout << "impostaOrarioSistema: " << orario << std::endl;
+    std::cout << stampaOrario(this->orario) << "L'orario attuale è " << stampaOrario(this->orario).substr(1, 5);
+    std::cout << std::endl;
 
     // se l'orario e' maggiore di quello attuale
     while (this->orario < orario)
@@ -344,8 +333,7 @@ void Sistema::impostaOrarioSistema(int orario)
             }
         }
     }
-
-    
+    std::cout << stampaOrario(this->orario) << "L'orario attuale è " << stampaOrario(this->orario).substr(1, 5) << std::endl;
 }
 
 // TODO: controllare che faccia quello richiesto dalle specifiche che l'ho scritto di fretta
@@ -418,8 +406,10 @@ bool Sistema::caseInsensitiveStringCompare(const std::string &str1, const std::s
     return true;
 }
 
-void Sistema::stampaOrario(int orario){
-    int ora = orario/60;
-    int minuti = orario%60;
-    std::cout << "[" << ora << ":" << minuti << "] ";
+std::string Sistema::stampaOrario(int orario) {
+    int ora = orario / 60;
+    int minuti = orario % 60;
+    std::ostringstream oss;
+    oss << "[" << std::setfill('0') << std::setw(2) << ora << ":" << std::setfill('0') << std::setw(2) << minuti << "] ";
+    return oss.str();
 }

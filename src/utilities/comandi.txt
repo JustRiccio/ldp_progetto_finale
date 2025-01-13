@@ -1,4 +1,7 @@
-set frigorifero on
-set "dispositivo di prova" 00:00 23:59
+set lavatrice 6:23 12:00
+set "impianto fotovoltaico" 12:30 22:00
+set time 13:00
+show frigorifero
+show "impianto fotovoltaico"
+show
 rm frigorifero
-show "mostra questo dispositivo"

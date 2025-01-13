@@ -292,7 +292,7 @@ void show(Sistema &s, std::vector<std::string> &tokens)
 
     std::string device_name = tokens[1];
 
-    s.stampaDispositivo(device_name);
+    s.stampaDispositivo(device_name, true);
 }
 
 void reset(Sistema &s, std::vector<std::string> &tokens)
@@ -357,7 +357,7 @@ std::vector<std::string> tokenize(std::string input, char delimiter = ' ')
 // e, nel caso, utilizzare un altro stream
 // std::ofstream redirect_output(std::string log_file)
 // {
-//     std::ofstream out("logs\\" + log_file);
+//     std::ofstream out("logs/" + log_file);
 //     // ATTENZIONE al percorso, tra windows e linux potrebbero esserci problemi,
 //     // quindi potrebbe essere necessario dover riscrivere questa riga
 //     if (!out.is_open())

@@ -35,7 +35,7 @@ public:
         void stampaDispositivi();
         // stampa la lista di tutti i dispositivi con la produzione/consumo
         // dalle 00:00 all'invio del comando + produzione/consumo totale del sistema
-        void stampaDispositivo(std::string);
+        void stampaDispositivo(std::string, bool);
         // stampa produzione/consumo di un dispositivo
         void impostaOrarioSistema(int);
         // imposta l'orario del sistema
@@ -47,7 +47,7 @@ public:
         // resetOrarioSistema+resetOrariDispositivi+spegne tutti i dispositivi
         bool caseInsensitiveStringCompare(const std::string&, const std::string&);
         // funzione per comparare stringhe case insensitive
-        void stampaOrario(int);
+        std::string stampaOrario(int);
         //stampa l'orario del sistema
 };
 
