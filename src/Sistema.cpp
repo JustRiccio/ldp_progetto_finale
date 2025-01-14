@@ -4,11 +4,10 @@
 #include "Sistema.h"
 
 // Constructor
-Sistema::Sistema(std::vector<std::unique_ptr<Dispositivo>> dispositivi, int potenza_massima) 
-    : capacita_max(potenza_massima), capacita_attuale(0), orario(0)
+Sistema::Sistema(std::vector<std::unique_ptr<Dispositivo>> dispositivi, double capacita_max)
+    : capacita_max(capacita_max), capacita_attuale(capacita_max), orario(0)
 {
     this->dispositivi = std::move(dispositivi);
-    std::cout << this->capacita_max << std::endl;
 }
 
 /**
@@ -31,19 +30,28 @@ void Sistema::accensioneDispositivo(std::string nome)
             }
             else
             {
-                // TODO: accendi comunque e in caso spegni i dispositivi se superano la potenza max
-                // eventualmente aggiungendo regole specifiche (esempi nel pdf)
-
-                // Controllo che la capacita' aggiunta non sfori il max
-                capacita_attuale += dispositivo->getConsumo();
-                dispositivo->setStato(true);
-
-                // Controllo se l'orario di accensione non e' stato settato
-                if (dispositivo->getOrarioAccensione() == -1)
+                // Controllo che la capacita' aggiunta non sfori il max.
+                // Se accendendo questi dispositivo sforo il limite di potenza,
+                // allora mi basta spegnerlo (non accenderlo neanche) per ritornare
+                // ad una potenza accettabile
+                if (capacita_attuale + dispositivo->getConsumo() < 0)
                 {
-                    dispositivo->setOrarioAccensione(orario);
+                    std::cout << stampaOrario(this->orario) << "Non si puo' accendere il dispositivo '" << nome << "' perche' sforerebbe il massimo della capacita'" << std::endl;
+                    // impostaOrario(nome, orario + 30);
                 }
-                std::cout << stampaOrario(this->orario) << "Il dispositivo '" << dispositivo->getNome() << "' si e' acceso" << std::endl;
+                else
+                {
+                    capacita_attuale += dispositivo->getConsumo();
+                    std::cout << stampaOrario(this->orario) << "Capacita' attuale: " << capacita_attuale << "kWh" << std::endl;
+                    dispositivo->setStato(true);
+
+                    // Controllo se l'orario di accensione non e' stato settato
+                    if (dispositivo->getOrarioAccensione() == -1)
+                    {
+                        dispositivo->setOrarioAccensione(orario);
+                    }
+                    std::cout << stampaOrario(this->orario) << "Il dispositivo '" << dispositivo->getNome() << "' si e' acceso" << std::endl;
+                }
             }
             found = true;
             break;
@@ -68,20 +76,26 @@ void Sistema::spegnimentoDispositivo(std::string nome)
             }
             else
             {
-                // TODO: gestione del caso "spegnimento fotovoltaico" che potrebbe
-                //  causare problemi se la potenza senza fotovoltaico e' troppo alta
-                //  per il sistema (bisogna spegnere il fotovoltaico, e poi spegnere dispositivi
-                //  secondo le logiche scelte (ricordarsi di aggiornare consumi di questi dispositivi))
-
-                capacita_attuale -= dispositivo->getConsumo();
-                dispositivo->setStato(false);
-                if (dynamic_cast<Manuale *>(dispositivo.get()))
+                while (capacita_attuale - dispositivo->getConsumo() < 0)
                 {
-                    dynamic_cast<Manuale *>(dispositivo.get())->setOrarioSpegnimento(orario);
+                    long unsigned int idx = -1;
+                    int max = -1;
+                    for (long unsigned int i = 0; i < dispositivi.size(); i++)
+                    {
+                        if (dispositivi[i]->getStato() && dispositivi[i]->getOrarioAccensione() > max && dispositivi[i]->getConsumo() < 0)
+                        {
+                            max = dispositivi[i]->getOrarioAccensione();
+                            idx = i;
+                        }
+                    }
+
+                    // non devo controllare che idx sia != -1 perche' non esistono casi
+                    // in cui non sia possibile spegnere qualcosa, perche' al piu' si puo'
+                    // spegnere ogni dispositivo per arrivare ad una potenza pari a 0
+                    spegnimentoDispositivoHelper(*dispositivi[idx]);
                 }
-                std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' si e' spento" << std::endl;
-                dispositivo->setConsumoTotale(dispositivo->getConsumoTotale() + (orario - dispositivo->getOrarioAccensione()) * dispositivo->getConsumo() / 60);
-                dispositivo->setOrarioAccensione(-1);
+
+                spegnimentoDispositivoHelper(*dispositivo);
             }
             found = true;
             break;
@@ -108,7 +122,14 @@ void Sistema::impostaOrario(std::string nome, int orario)
         {
             if (dispositivo->getOrarioAccensione() != -1)
             {
-                std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' ha gia' un timer impostato" << std::endl;
+                if (dispositivo->getOrarioAccensione() < this->orario)
+                {
+                    std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' e' attualmente acceso" << std::endl;
+                }
+                else
+                {
+                    std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' ha gia' un timer impostato" << std::endl;
+                }
             }
             else
             {
@@ -147,15 +168,18 @@ void Sistema::impostaOrario(std::string nome, int orario_accensione, int orario_
         {
             if (dispositivo->getOrarioAccensione() != -1)
             {
-                std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' ha gia' un timer impostato" << std::endl;
+                if (dispositivo->getOrarioAccensione() < this->orario)
+                {
+                    std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' e' attualmente acceso" << std::endl;
+                }
+                else
+                {
+                    std::cout << stampaOrario(this->orario) << "Il dispositivo '" << nome << "' ha gia' un timer impostato" << std::endl;
+                }
             }
             else
             {
-
-                if (!dispositivo->getStato())
-                {
-                    dispositivo->setOrarioAccensione(orario_accensione);
-                }
+                dispositivo->setOrarioAccensione(orario_accensione);
                 // Stampa differenziata per i due tipi di dispositivi
                 // Settaggio dell'orario di spegnimento per manuali
                 if (dynamic_cast<Manuale *>(dispositivo.get()))
@@ -244,11 +268,8 @@ void Sistema::stampaDispositivi()
             kWConsumati -= consumoTmp;
         }
     }
-    // evito di stampare il segno '-'
-    // da rimuovere se si preferisce tenerlo.
-    // nel caso si volesse togliere, e' da rimuovere fabs anche nel metodo di stampaDispositivo.
-    // poi si puo' rimuovere l'include di cmath
-    kWConsumati = fabs(kWConsumati); 
+
+    kWConsumati = fabs(kWConsumati);
     std::cout << stampaOrario(this->orario) << "Attualmente il sistema ha prodotto " << kWProdotti << "kWh e consumato " << kWConsumati << "kWh " << std::endl;
     std::cout << "\tNello specifico: " << std::endl;
     for (auto &dispositivo : dispositivi)
@@ -350,17 +371,16 @@ void Sistema::resetOrarioSistema()
         dispositivo->setStato(false);
         dispositivo->setConsumoTotale(0);
     }
+    capacita_attuale = capacita_max;
 }
 
 // resetta tutti i timer tranne quelli accesi al momento del comando
-// TODO: controllare che faccia quello richiesto dalle specifiche che l'ho scritto di fretta
 void Sistema::resetOrariDispositivi()
 {
     std::cout << stampaOrario(this->orario) << "I timer dei dispositivi sono stati resettati" << std::endl;
 
     for (auto &dispositivo : dispositivi)
     {
-        // TODO: gestione dispositivo ciclico gia' acceso
         if (!dispositivo->getStato())
         {
             dispositivo->setOrarioAccensione(-1);
@@ -378,17 +398,7 @@ void Sistema::resetSistema()
 {
     std::cout << stampaOrario(this->orario) << "Il sistema e' stato portato alle condizioni iniziali" << std::endl;
     resetOrarioSistema();
-
-    for (auto &dispositivo : dispositivi)
-    {
-        dispositivo->setStato(false);
-        if (dynamic_cast<Manuale *>(dispositivo.get()))
-        {
-            dynamic_cast<Manuale *>(dispositivo.get())->setOrarioSpegnimento(-1);
-        }
-        dispositivo->setOrarioAccensione(-1);
-        dispositivo->setConsumoTotale(0);
-    }
+    resetOrariDispositivi();
 }
 
 // Comparazione case insensitive tra due stringhe
@@ -416,4 +426,17 @@ std::string Sistema::stampaOrario(int orario)
     std::ostringstream oss;
     oss << "[" << std::setfill('0') << std::setw(2) << ora << ":" << std::setfill('0') << std::setw(2) << minuti << "] ";
     return oss.str();
+}
+
+void Sistema::spegnimentoDispositivoHelper(Dispositivo &dispositivo)
+{
+    capacita_attuale -= dispositivo.getConsumo();
+    dispositivo.setStato(false);
+    if (dynamic_cast<Manuale *>(&dispositivo))
+    {
+        dynamic_cast<Manuale *>(&dispositivo)->setOrarioSpegnimento(orario);
+    }
+    std::cout << stampaOrario(this->orario) << "Il dispositivo '" << dispositivo.getNome() << "' si e' spento" << std::endl;
+    dispositivo.setConsumoTotale(dispositivo.getConsumoTotale() + (orario - dispositivo.getOrarioAccensione()) * dispositivo.getConsumo() / 60);
+    dispositivo.setOrarioAccensione(-1);
 }

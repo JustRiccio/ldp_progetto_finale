@@ -27,18 +27,7 @@ int format_time(std::string);
 
 int main(int argc, char *argv[])
 {
-    // redirect dell'output su file
-    // TODO: spostarlo all'interno di una funzione
-    // problema:
-    /*
-    Key Issue: std::ofstream Goes Out of Scope
-    The std::ofstream object you use to redirect std::cout
-    must remain valid and in scope for the duration of the redirection.
-    If the ofstream object is created inside an if block or a function,
-    it will be destroyed as soon as the block or function exits. When this happens:
-    -The underlying file stream is closed.
-    -The std::cout stream is left pointing to an invalid stream buffer, causing undefined behavior or no output.
-    */
+    // Redirect dell'output su file
     std::string log_file = "";
     std::ofstream out_file("");
     if (argc >= 2) // se non viene passato alcun argomento, stampo normalmente a schermo
@@ -59,12 +48,12 @@ int main(int argc, char *argv[])
 
     // Imposto un valore di default per la potenza massima
     // Se c'è un terzo argomento valido sovrascrivo il valore di default
-    int potenza_massima = 4;
+    double potenza_massima = Sistema::POTENZA_MASSIMA_DEFAULT;
     if (argc >= 3)
     {
         try
         {
-            potenza_massima = std::stoi(argv[2]);
+            potenza_massima = std::stod(argv[2]);
         }
         catch (const std::invalid_argument &e)
         {
@@ -140,18 +129,19 @@ std::vector<std::unique_ptr<Dispositivo>> carica_dispositivi()
         if (tokens.size() == 4)
         {
             int durata = std::stoi(tokens[3]);
-            dispositivi.push_back(std::make_unique<Ciclo>(id, nome, consumo, -1, durata));
 
             // questa riga e la riga commentata nel blocco "else"
             // vanno sostituite alle altre due righe di dispositivi.push_back()
-            // nel caso si voglia fare utilizzo esclusivamente di c++11.
-            // Altrimenti, l'utilizzo, piu' sicuro, di make_unique, richiede c++14
-            // dispositivi.push_back(std::unique_ptr<Ciclo>(new Ciclo(id, nome, consumo, -1, durata)));
+            // nel caso si voglia fare utilizzo del piu' sicuro make_unique,
+            // che pero' richiede c++14
+
+            // dispositivi.push_back(std::make_unique<Ciclo>(id, nome, consumo, -1, durata));
+            dispositivi.push_back(std::unique_ptr<Ciclo>(new Ciclo(id, nome, consumo, -1, durata)));
         }
         else
         {
-            dispositivi.push_back(std::make_unique<Manuale>(id, nome, consumo, -1, -1));
-            // dispositivi.push_back(std::unique_ptr<Manuale>(new Manuale(id, nome, consumo, -1, -1)));
+            // dispositivi.push_back(std::make_unique<Manuale>(id, nome, consumo, -1, -1));
+            dispositivi.push_back(std::unique_ptr<Manuale>(new Manuale(id, nome, consumo, -1, -1)));
         }
         id++;
     }
@@ -174,7 +164,7 @@ void esegui_comandi_default(Sistema &s)
     std::string line;
     while (std::getline(file, line))
     {
-        // non ho idea del perche', ma ogni tanto, leggendo righe da file,
+        // Non ho idea del perche', ma ogni tanto, leggendo righe da file,
         // viene messo un carriage return alla fine, e questo causa grandi problemi
         // nella tokenizzazione e nel parse dell'input per eseguire i comandi.
         // Quindi, se il carattere e' presente, lo rimuovo
@@ -342,7 +332,7 @@ std::vector<std::string> parse_input(std::string input)
     return parse_multi_words(tokens);
 }
 
-// splitta una stringa in base a un delimitatore dato
+// Splitta una stringa in base a un delimitatore dato
 std::vector<std::string> tokenize(std::string input, char delimitatore = ' ')
 {
     std::stringstream ss(input);
@@ -382,13 +372,13 @@ std::vector<std::string> parse_multi_words(const std::vector<std::string> &token
                 multi_word += " " + tokens[i];
                 ++i;
             }
-            // elimino le virgolette iniziali e finali
+            // Elimino le virgolette iniziali e finali
             multi_word = multi_word.substr(1, multi_word.size() - 2);
             parsed_tokens.push_back(multi_word);
         }
         else
         {
-            // parola senza virgolette, aggiungo direttamente
+            // Parola senza virgolette, aggiungo direttamente
             parsed_tokens.push_back(tokens[i]);
             ++i;
         }
@@ -397,8 +387,8 @@ std::vector<std::string> parse_multi_words(const std::vector<std::string> &token
     return parsed_tokens;
 }
 
-// converte un orario in formato hh:mm in minuti
-// es: 12:30 = 12*60 + 30 = 750
+// Converte un orario in formato hh:mm in minuti
+// Es: 12:30 = 12*60 + 30 = 750
 int format_time(std::string time)
 {
     std::stringstream time_ss(time);

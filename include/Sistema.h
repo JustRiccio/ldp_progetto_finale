@@ -7,7 +7,6 @@
 #include "Dispositivo.h"
 #include "Ciclo.h"
 #include "Manuale.h"
-
 class Sistema
 {
 private:
@@ -15,12 +14,13 @@ private:
         // top answer + risposta di Thomas Sablik del seguente link:
         // https://stackoverflow.com/questions/2394581/pure-virtual-class-and-collections-vector
         std::vector<std::unique_ptr<Dispositivo>> dispositivi;
-        const int capacita_max; // valore di default rimosso
-        int capacita_attuale; // ricavabile volendo
+        const double capacita_max;
+        double capacita_attuale; // ricavabile volendo
         int orario;
 
 public:
-        Sistema(std::vector<std::unique_ptr<Dispositivo>>, int potenza_massima = 4); // aggiunto parametro potenza_massima
+        static constexpr double POTENZA_MASSIMA_DEFAULT = 3.5;
+        Sistema(std::vector<std::unique_ptr<Dispositivo>>, double potenza_massima = POTENZA_MASSIMA_DEFAULT); // aggiunto parametro potenza_massima
         // Constructor
         void accensioneDispositivo(std::string);
         // accende un dispositivo
@@ -45,10 +45,11 @@ public:
         // Rimuove i timer di tutti i dispositivi
         void resetSistema();
         // resetOrarioSistema+resetOrariDispositivi+spegne tutti i dispositivi
-        bool caseInsensitiveStringCompare(const std::string&, const std::string&);
+        bool caseInsensitiveStringCompare(const std::string &, const std::string &);
         // funzione per comparare stringhe case insensitive
         std::string stampaOrario(int);
-        //stampa l'orario del sistema
+        // stampa l'orario del sistema
+        void spegnimentoDispositivoHelper(Dispositivo&);
 };
 
 #endif

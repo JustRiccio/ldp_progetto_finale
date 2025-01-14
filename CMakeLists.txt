@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.11.0 FATAL_ERROR)
 project(ldp_progetto_finale VERSION 1.0)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(source_dir "${PROJECT_SOURCE_DIR}/src")
@@ -21,7 +21,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall -Wextra -Wpedantic")
+	set(CMAKE_CXX_FLAGS_DEBUG "-g -O2 -Wall -Wextra -Wpedantic")
 	set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall -Wextra -Wpedantic")
 endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
