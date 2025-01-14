@@ -57,6 +57,21 @@ int main(int argc, char *argv[])
         std::cout.rdbuf(out_file.rdbuf());
     }
 
+    // Imposto un valore di default per la potenza massima
+    // Se c'è un terzo argomento valido sovrascrivo il valore di default
+    int potenza_massima = 4;
+    if (argc >= 3)
+    {
+        try
+        {
+            potenza_massima = std::stoi(argv[2]);
+        }
+        catch (const std::invalid_argument &e)
+        {
+            std::cout << "Errore: potenza massima non valida. Utilizzo il valore di default." << std::endl;
+        }
+    }
+
     // soluzione più o meno elegante
     // per gestire molteplici comandi senza avere uno switch case oppure una catena di if-else.
     // ad ogni key nella hash_map (set, rm, ...) viene associata una funzione che ha sempre lo stesso tipo di firma
@@ -66,7 +81,7 @@ int main(int argc, char *argv[])
         {"show", show},
         {"reset", reset}};
 
-    Sistema sistema(carica_dispositivi());
+    Sistema sistema(carica_dispositivi(), potenza_massima);
     esegui_comandi_default(sistema);
     std::string input;
     while (true)

@@ -4,9 +4,11 @@
 #include "Sistema.h"
 
 // Constructor
-Sistema::Sistema(std::vector<std::unique_ptr<Dispositivo>> dispositivi) : capacita_max(4), capacita_attuale(0), orario(0)
+Sistema::Sistema(std::vector<std::unique_ptr<Dispositivo>> dispositivi, int potenza_massima) 
+    : capacita_max(potenza_massima), capacita_attuale(0), orario(0)
 {
     this->dispositivi = std::move(dispositivi);
+    std::cout << this->capacita_max << std::endl;
 }
 
 /**
@@ -337,7 +339,8 @@ void Sistema::impostaOrarioSistema(int orario)
     std::cout << stampaOrario(this->orario) << "L'orario attuale e' " << stampaOrario(this->orario).substr(1, 5) << std::endl;
 }
 
-// TODO: controllare che faccia quello richiesto dalle specifiche che l'ho scritto di fretta
+// Resetta l'orario del sistema a 00:00
+// Riporta i dispositivi alle condizioni iniziale
 void Sistema::resetOrarioSistema()
 {
     std::cout << stampaOrario(this->orario) << "L'orario del sistema e' stato resettato" << std::endl;

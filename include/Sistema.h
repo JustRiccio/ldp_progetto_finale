@@ -15,12 +15,12 @@ private:
         // top answer + risposta di Thomas Sablik del seguente link:
         // https://stackoverflow.com/questions/2394581/pure-virtual-class-and-collections-vector
         std::vector<std::unique_ptr<Dispositivo>> dispositivi;
-        const int capacita_max; //TODO: aggiungere un valore di default
+        const int capacita_max; // valore di default rimosso
         int capacita_attuale; // ricavabile volendo
         int orario;
 
 public:
-        Sistema(std::vector<std::unique_ptr<Dispositivo>>);
+        Sistema(std::vector<std::unique_ptr<Dispositivo>>, int potenza_massima = 4); // aggiunto parametro potenza_massima
         // Constructor
         void accensioneDispositivo(std::string);
         // accende un dispositivo
