@@ -1,3 +1,4 @@
+// Salamone Alessandro
 #ifndef SISTEMA_H
 #define SISTEMA_H
 #include <iostream>

@@ -1,0 +1,22 @@
+set frigorifero 00:01 23:59
+set "Pompa di calore + termostato" on
+set "lavatrice" 2:00
+set "scaldabagno" 7:00 8:00
+set time 8:30
+set "impianto fotovoltaico" 9:00 18:00
+show
+set time 10:00
+set "lavatrice" on
+rm "frigorifero"
+show "frigorifero"
+set time 14:00
+set "frigorifero" off
+set "forno a microonde" on
+set "Lavastoviglie" on
+set "Tapparelle elettriche" on
+set "Televisore" on
+set time 14:01
+set "Impianto fotovoltaico" off 
+set time 18:00
+show
+reset all

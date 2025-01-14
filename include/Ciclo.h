@@ -1,3 +1,4 @@
+// Salamone Alessandro
 #ifndef CICLO_H
 #define CICLO_H
 

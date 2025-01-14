@@ -1,3 +1,4 @@
+// Salamone Alessandro
 #ifndef MANUALE_H
 #define MANUALE_H
 

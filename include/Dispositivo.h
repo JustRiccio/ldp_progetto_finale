@@ -1,3 +1,4 @@
+// Salamone Alessandro
 #ifndef DISPOSITIVO_H
 #define DISPOSITIVO_H
 #include <iostream>

@@ -1,0 +1,84 @@
+set frigorifero 00:01 23:59
+[00:00] Impostato un timer per il dispositivo 'frigorifero' dalle [00:01]  alle [23:59] 
+set "Pompa di calore + termostato" on
+[00:00] Il dispositivo 'Pompa di calore + termostato' si e' acceso
+set "lavatrice" 2:00
+[00:00] Impostato l'orario di accensione del dispositivo 'lavatrice' alle ore [02:00] 
+set "scaldabagno" 7:00 8:00
+[00:00] Impostato un timer per il dispositivo 'scaldabagno' dalle [07:00]  alle [08:00] 
+set time 8:30
+[00:00] L'orario attuale e' 00:00
+[00:01] Il dispositivo 'Frigorifero' si e' acceso
+[02:00] Non si puo' accendere il dispositivo 'Lavatrice' perche' sforerebbe il massimo della capacita'
+[07:00] Il dispositivo 'Scaldabagno' si e' acceso
+[08:00] Il dispositivo 'Scaldabagno' si e' spento
+[08:30] L'orario attuale e' 08:30
+set "impianto fotovoltaico" 9:00 18:00
+[08:30] Impostato un timer per il dispositivo 'impianto fotovoltaico' dalle [09:00]  alle [18:00] 
+show
+[08:30] Attualmente il sistema ha prodotto 0kWh e consumato 21.3933kWh 
+	Nello specifico: 
+	- Il dispositivo 'Impianto fotovoltaico' ha attualmente consumato 0kWh
+	- Il dispositivo 'Lavatrice' ha attualmente consumato 0kWh
+	- Il dispositivo 'Lavastoviglie' ha attualmente consumato 0kWh
+	- Il dispositivo 'Pompa di calore + termostato' ha attualmente consumato 17kWh
+	- Il dispositivo 'Tapparelle elettriche' ha attualmente consumato 0kWh
+	- Il dispositivo 'Scaldabagno' ha attualmente consumato 1kWh
+	- Il dispositivo 'Frigorifero' ha attualmente consumato 3.39333kWh
+	- Il dispositivo 'Forno a microonde' ha attualmente consumato 0kWh
+	- Il dispositivo 'Asciugatrice' ha attualmente consumato 0kWh
+	- Il dispositivo 'Televisore' ha attualmente consumato 0kWh
+set time 10:00
+[08:30] L'orario attuale e' 08:30
+[09:00] Il dispositivo 'Impianto fotovoltaico' si e' acceso
+[10:00] L'orario attuale e' 10:00
+set "lavatrice" on
+[10:00] Il dispositivo 'Lavatrice' si e' acceso
+rm "frigorifero"
+[10:00] Il dispositivo 'frigorifero' e' attualmente acceso
+show "frigorifero"
+[10:00] Il dispositivo 'frigorifero' ha attualmente consumato 3.99333kWh
+set time 14:00
+[10:00] L'orario attuale e' 10:00
+[11:50] Il dispositivo 'Lavatrice' si e' spento
+[14:00] L'orario attuale e' 14:00
+set "frigorifero" off
+[14:00] Il dispositivo 'Frigorifero' si e' spento
+set "forno a microonde" on
+[14:00] Il dispositivo 'Forno a microonde' si e' acceso
+set "Lavastoviglie" on
+[14:00] Il dispositivo 'Lavastoviglie' si e' acceso
+set "Tapparelle elettriche" on
+[14:00] Il dispositivo 'Tapparelle elettriche' si e' acceso
+set "Televisore" on
+[14:00] Il dispositivo 'Televisore' si e' acceso
+set time 14:01
+[14:00] L'orario attuale e' 14:00
+[14:01] Il dispositivo 'Tapparelle elettriche' si e' spento
+[14:01] L'orario attuale e' 14:01
+set "Impianto fotovoltaico" off 
+[14:01] Il dispositivo 'Lavastoviglie' si e' spento
+[14:01] Il dispositivo 'Impianto fotovoltaico' si e' spento
+set time 18:00
+[14:01] L'orario attuale e' 14:01
+[14:02] Il dispositivo 'Forno a microonde' si e' spento
+[15:00] Il dispositivo 'Televisore' si e' spento
+[18:00] L'orario attuale e' 18:00
+show
+[18:00] Attualmente il sistema ha prodotto 7.525kWh e consumato 46.5167kWh 
+	Nello specifico: 
+	- Il dispositivo 'Impianto fotovoltaico' ha attualmente prodotto 7.525kWh
+	- Il dispositivo 'Lavatrice' ha attualmente consumato 3.66667kWh
+	- Il dispositivo 'Lavastoviglie' ha attualmente consumato 0.025kWh
+	- Il dispositivo 'Pompa di calore + termostato' ha attualmente consumato 36kWh
+	- Il dispositivo 'Tapparelle elettriche' ha attualmente consumato 0.005kWh
+	- Il dispositivo 'Scaldabagno' ha attualmente consumato 1kWh
+	- Il dispositivo 'Frigorifero' ha attualmente consumato 5.59333kWh
+	- Il dispositivo 'Forno a microonde' ha attualmente consumato 0.0266667kWh
+	- Il dispositivo 'Asciugatrice' ha attualmente consumato 0kWh
+	- Il dispositivo 'Televisore' ha attualmente consumato 0.2kWh
+reset all
+[18:00] Il sistema e' stato portato alle condizioni iniziali
+[18:00] L'orario del sistema e' stato resettato
+[00:00] I timer dei dispositivi sono stati resettati
+exit

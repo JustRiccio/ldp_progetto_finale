@@ -1,19 +1,35 @@
+//Sperandio Lorenzo 
 #include <iomanip>
 #include <sstream>
 #include <cmath>
 #include "Sistema.h"
 
-// Constructor
+/**
+ * @brief Costruttore della classe Sistema.
+ * 
+ * Inizializza un oggetto Sistema con una lista di dispositivi e una capacità massima.
+ * La capacità attuale viene inizializzata al valore della capacità massima e l'orario viene impostato a 0.
+ * 
+ * @param dispositivi Un vettore di puntatori unici a oggetti Dispositivo.
+ * @param capacita_max La capacità massima del sistema.
+ */
+
 Sistema::Sistema(std::vector<std::unique_ptr<Dispositivo>> dispositivi, double capacita_max)
     : capacita_max(capacita_max), capacita_attuale(capacita_max), orario(0)
 {
     this->dispositivi = std::move(dispositivi);
 }
 
-/**
- *Accensione di un dispositivo
- *ricerca il dispositivo con il nome passato come parametro
- *se la capacita' aggiunta non sfora il max del sistema il dispositivo viene acceso
+ /**
+ * Ricerca il dispositivo con il nome passato come parametro e, se la capacità aggiunta non supera il massimo del sistema, accende il dispositivo.
+ * 
+ * @param nome Il nome del dispositivo da accendere.
+ *
+ * Comportamento:
+ * - Se il dispositivo è già acceso, stampa un messaggio indicante che il dispositivo è già acceso.
+ * - Se accendere il dispositivo supera la capacità massima del sistema, stampa un messaggio indicante che non è possibile accendere il dispositivo.
+ * - Se il dispositivo può essere acceso senza superare la capacità massima, aggiorna la capacità attuale, imposta lo stato del dispositivo su acceso e stampa un messaggio indicante che il dispositivo è stato acceso.
+ * - Se il dispositivo non viene trovato, stampa un messaggio indicante che il dispositivo non è stato trovato.
  */
 void Sistema::accensioneDispositivo(std::string nome)
 {
@@ -37,12 +53,16 @@ void Sistema::accensioneDispositivo(std::string nome)
                 if (capacita_attuale + dispositivo->getConsumo() < 0)
                 {
                     std::cout << stampaOrario(this->orario) << "Non si puo' accendere il dispositivo '" << nome << "' perche' sforerebbe il massimo della capacita'" << std::endl;
-                    // impostaOrario(nome, orario + 30);
+                    dispositivo->setOrarioAccensione(-1);
+
+                    if (dynamic_cast<Manuale *>(dispositivo.get()))
+                    {
+                        dynamic_cast<Manuale *>(dispositivo.get())->setOrarioSpegnimento(-1);
+                    }
                 }
                 else
                 {
                     capacita_attuale += dispositivo->getConsumo();
-                    std::cout << stampaOrario(this->orario) << "Capacita' attuale: " << capacita_attuale << "kWh" << std::endl;
                     dispositivo->setStato(true);
 
                     // Controllo se l'orario di accensione non e' stato settato
@@ -63,6 +83,19 @@ void Sistema::accensioneDispositivo(std::string nome)
     }
 }
 
+/**
+ * @brief Spegne un dispositivo specificato dal nome.
+ * 
+ * Ricerca il dispositivo con il nome passato come parametro e, se il dispositivo è acceso, lo spegne.
+ * 
+ * @param nome Il nome del dispositivo da spegnere.
+ *
+ * Comportamento:
+ * - Se il dispositivo è già spento, stampa un messaggio indicante che il dispositivo è già spento.
+ * - Se spegnere il dispositivo porta la capacità attuale sotto zero, spegne altri dispositivi fino a riportare la capacità a un valore accettabile.
+ * - Aggiorna la capacità attuale, imposta lo stato del dispositivo su spento e stampa un messaggio indicante che il dispositivo è stato spento.
+ * - Se il dispositivo non viene trovato, stampa un messaggio indicante che il dispositivo non è stato trovato.
+ */
 void Sistema::spegnimentoDispositivo(std::string nome)
 {
     bool found = false;
@@ -89,7 +122,7 @@ void Sistema::spegnimentoDispositivo(std::string nome)
                         }
                     }
 
-                    // non devo controllare che idx sia != -1 perche' non esistono casi
+                    // Non devo controllare che idx sia != -1 perche' non esistono casi
                     // in cui non sia possibile spegnere qualcosa, perche' al piu' si puo'
                     // spegnere ogni dispositivo per arrivare ad una potenza pari a 0
                     spegnimentoDispositivoHelper(*dispositivi[idx]);
@@ -108,6 +141,21 @@ void Sistema::spegnimentoDispositivo(std::string nome)
     }
 }
 
+/**
+ * @brief Imposta l'orario di accensione di un dispositivo specificato dal nome.
+ * 
+ * Ricerca il dispositivo con il nome passato come parametro e, se il dispositivo non è attualmente acceso, imposta l'orario di accensione.
+ * 
+ * @param nome Il nome del dispositivo per cui impostare l'orario di accensione.
+ * @param orario L'orario di accensione da impostare.
+ *
+ * Comportamento:
+ * - Se l'orario passato è minore o uguale all'orario attuale del sistema, stampa un messaggio indicante che l'orario inserito non è valido.
+ * - Se il dispositivo è attualmente acceso, stampa un messaggio indicante che il dispositivo è attualmente acceso.
+ * - Se il dispositivo ha già un timer impostato, stampa un messaggio indicante che il dispositivo ha già un timer impostato.
+ * - Se il dispositivo non ha un timer impostato, imposta l'orario di accensione e stampa un messaggio indicante che l'orario di accensione è stato impostato.
+ * - Se il dispositivo non viene trovato, stampa un messaggio indicante che il dispositivo non è stato trovato.
+ */
 void Sistema::impostaOrario(std::string nome, int orario)
 {
     if (orario <= this->orario)
@@ -146,8 +194,23 @@ void Sistema::impostaOrario(std::string nome, int orario)
     }
 }
 
-// se un dispositivo e' gia' acceso e si imposta un orario di accensione
-// viene sovrascritto l'orario di accensione e di conseguenza anche tutti i dati sull'accensione precedente
+/**
+ * @brief Imposta l'orario di accensione e spegnimento di un dispositivo specificato dal nome.
+ * 
+ * Ricerca il dispositivo con il nome passato come parametro e, se il dispositivo non è attualmente acceso, imposta l'orario di accensione e spegnimento.
+ * 
+ * @param nome Il nome del dispositivo per cui impostare l'orario di accensione e spegnimento.
+ * @param orario_accensione L'orario di accensione da impostare.
+ * @param orario_spegnimento L'orario di spegnimento da impostare.
+ *
+ * Comportamento:
+ * - Se l'orario di accensione o spegnimento passato è minore o uguale all'orario attuale del sistema, stampa un messaggio indicante che l'orario inserito non è valido.
+ * - Se l'orario di accensione è maggiore o uguale all'orario di spegnimento, stampa un messaggio indicante che l'orario inserito non è valido.
+ * - Se il dispositivo è attualmente acceso, stampa un messaggio indicante che il dispositivo è attualmente acceso.
+ * - Se il dispositivo ha già un timer impostato, stampa un messaggio indicante che il dispositivo ha già un timer impostato.
+ * - Se il dispositivo non ha un timer impostato, imposta l'orario di accensione e spegnimento (se applicabile) e stampa un messaggio indicante che l'orario di accensione e spegnimento è stato impostato.
+ * - Se il dispositivo non viene trovato, stampa un messaggio indicante che il dispositivo non è stato trovato.
+ */
 void Sistema::impostaOrario(std::string nome, int orario_accensione, int orario_spegnimento)
 {
     if (orario_accensione <= this->orario || orario_spegnimento <= this->orario)
@@ -202,6 +265,19 @@ void Sistema::impostaOrario(std::string nome, int orario_accensione, int orario_
     }
 }
 
+/**
+ * @brief Rimuove l'orario di accensione di un dispositivo specificato dal nome.
+ * 
+ * Ricerca il dispositivo con il nome passato come parametro e, se il dispositivo non è attualmente acceso, rimuove l'orario di accensione.
+ * 
+ * @param nome Il nome del dispositivo per cui rimuovere l'orario di accensione.
+ *
+ * Comportamento:
+ * - Se il dispositivo è attualmente acceso, stampa un messaggio indicante che il dispositivo è attualmente acceso.
+ * - Se il dispositivo è di tipo Manuale, rimuove anche l'orario di spegnimento.
+ * - Se l'orario di accensione viene rimosso con successo, stampa un messaggio indicante che il timer è stato rimosso.
+ * - Se il dispositivo non viene trovato, stampa un messaggio indicante che il dispositivo non è stato trovato.
+ */
 void Sistema::rimuoviOrario(std::string nome)
 {
     bool found = false;
@@ -238,9 +314,22 @@ void Sistema::rimuoviOrario(std::string nome)
 }
 
 /**
+ * @brief Stampa lo stato attuale dei dispositivi nel sistema, inclusi i kWh prodotti e consumati.
+ * 
  * Mostra la lista di tutti i dispositivi con la produzione/consumo energetico di ciascuno dall'ultimo orario di set al momento di invio del comando.
  * Inoltre mostra la produzione/consumo energetica totale del sistema dalle 00:00 al momento di invio del comando
  * utilizza due for, perche' il secondo stampa solo i dispostivi che hanno/prodotto/consumato dopo l'ultimo orario di set
+ * 
+ * @details
+ * - kWProdotti: Energia totale prodotta dai dispositivi accesi.
+ * - kWConsumati: Energia totale consumata dai dispositivi accesi.
+ * - consumoTmp: Consumo temporaneo di un singolo dispositivo.
+ * 
+ * La funzione itera su tutti i dispositivi, calcolando il consumo totale per ciascuno di essi. Se il dispositivo è acceso,
+ * il consumo viene aggiornato in base all'orario corrente. I dispositivi che producono energia contribuiscono a kWProdotti,
+ * mentre quelli che consumano energia contribuiscono a kWConsumati.
+ * 
+ * Viene poi stampato l'orario corrente, l'energia totale prodotta e consumata, e una lista dettagliata dei dispositivi.
  */
 void Sistema::stampaDispositivi()
 {
@@ -279,6 +368,17 @@ void Sistema::stampaDispositivi()
     }
 }
 
+/**
+ * @brief Stampa le informazioni di un dispositivo specificato per nome.
+ * 
+ * Questa funzione cerca un dispositivo nella lista dei dispositivi e, se trovato,
+ * stampa il consumo totale o la produzione totale del dispositivo. Se il dispositivo
+ * è attualmente acceso, aggiunge il consumo/produzione corrente al totale.
+ * 
+ * @param nome Il nome del dispositivo da cercare.
+ * @param stampaOrarioFlag Flag opzionale per indicare se stampare o meno l'orario corrente.
+ *                         Il valore predefinito è true.
+ */
 void Sistema::stampaDispositivo(std::string nome, bool stampaOrarioFlag = true)
 {
     bool found = false;
@@ -321,6 +421,14 @@ void Sistema::stampaDispositivo(std::string nome, bool stampaOrarioFlag = true)
     }
 }
 
+/**
+ * @brief Imposta l'orario del sistema e aggiorna lo stato dei dispositivi.
+ * 
+ * Questa funzione aggiorna l'orario del sistema incrementandolo di un minuto alla volta fino a raggiungere l'orario specificato.
+ * Durante ogni iterazione, controlla lo stato dei dispositivi e li accende o spegne in base agli orari di accensione e spegnimento configurati.
+ * 
+ * @param orario L'orario da impostare nel formato minuti (es. 150 per le 2:30).
+ */
 void Sistema::impostaOrarioSistema(int orario)
 {
     std::cout << stampaOrario(this->orario) << "L'orario attuale e' " << stampaOrario(this->orario).substr(1, 5);
@@ -360,8 +468,15 @@ void Sistema::impostaOrarioSistema(int orario)
     std::cout << stampaOrario(this->orario) << "L'orario attuale e' " << stampaOrario(this->orario).substr(1, 5) << std::endl;
 }
 
-// Resetta l'orario del sistema a 00:00
-// Riporta i dispositivi alle condizioni iniziale
+/**
+ * @brief Resetta l'orario del sistema e aggiorna lo stato dei dispositivi.
+ *
+ * Questa funzione esegue le seguenti operazioni:
+ * - Stampa l'orario corrente del sistema e un messaggio di reset.
+ * - Reimposta l'orario del sistema a 00:00.
+ * - Disattiva tutti i dispositivi e reimposta il loro consumo totale a 0.
+ * - Reimposta la capacità attuale del sistema alla capacità massima.
+ */
 void Sistema::resetOrarioSistema()
 {
     std::cout << stampaOrario(this->orario) << "L'orario del sistema e' stato resettato" << std::endl;
@@ -374,7 +489,14 @@ void Sistema::resetOrarioSistema()
     capacita_attuale = capacita_max;
 }
 
-// resetta tutti i timer tranne quelli accesi al momento del comando
+/**
+ * @brief Resetta gli orari di accensione e spegnimento dei dispositivi.
+ * 
+ * Questa funzione stampa l'orario corrente e un messaggio di reset dei timer dei dispositivi.
+ * Successivamente, per ogni dispositivo nella lista dei dispositivi:
+ * - Se il dispositivo è spento (stato false), imposta l'orario di accensione a -1.
+ * - Se il dispositivo è di tipo Manuale, imposta l'orario di accensione e di spegnimento a -1.
+ */
 void Sistema::resetOrariDispositivi()
 {
     std::cout << stampaOrario(this->orario) << "I timer dei dispositivi sono stati resettati" << std::endl;
@@ -392,8 +514,15 @@ void Sistema::resetOrariDispositivi()
     }
 }
 
-// Riporta il sistema alle condizioni iniziali
-// L’orario viene impostato a 00:00, tutti i timer vengono rimossi e tutti i dispositivi vengono spenti
+/**
+ * @brief Ripristina il sistema alle condizioni iniziali.
+ * 
+ * Questa funzione esegue le seguenti operazioni:
+ * - Stampa l'orario corrente e un messaggio di ripristino.
+ * - L’orario viene impostato a 00:00
+ * - Tutti i timer vengono rimossi
+ * - Tutti i dispositivi vengono spenti
+ */
 void Sistema::resetSistema()
 {
     std::cout << stampaOrario(this->orario) << "Il sistema e' stato portato alle condizioni iniziali" << std::endl;
@@ -401,7 +530,17 @@ void Sistema::resetSistema()
     resetOrariDispositivi();
 }
 
-// Comparazione case insensitive tra due stringhe
+/**
+ * @brief Confronta due stringhe in modo "insensitive".
+ *
+ * Questa funzione confronta due stringhe carattere per carattere senza 
+ * considerare le differenze tra maiuscole e minuscole. Restituisce true 
+ * se le stringhe sono uguali, altrimenti false.
+ * 
+ * @param str1 La prima stringa da confrontare.
+ * @param str2 La seconda stringa da confrontare.
+ * @return true se le stringhe sono uguali ignorando le maiuscole, false altrimenti.
+ */
 bool Sistema::caseInsensitiveStringCompare(const std::string &str1, const std::string &str2)
 {
     if (str1.size() != str2.size())
@@ -418,7 +557,15 @@ bool Sistema::caseInsensitiveStringCompare(const std::string &str1, const std::s
     return true;
 }
 
-// Stampa orario in formato hh:mm
+/**
+ * @brief Converte un orario espresso in minuti in una stringa formattata.
+ *
+ * Questa funzione prende un orario espresso in minuti dall'inizio della giornata
+ * e lo converte in una stringa formattata nel formato [HH:MM].
+ *
+ * @param orario L'orario espresso in minuti.
+ * @return Una stringa che rappresenta l'orario nel formato [HH:MM].
+ */
 std::string Sistema::stampaOrario(int orario)
 {
     int ora = orario / 60;
@@ -428,6 +575,16 @@ std::string Sistema::stampaOrario(int orario)
     return oss.str();
 }
 
+/**
+ * @brief Spegne un dispositivo e aggiorna lo stato del sistema.
+ * 
+ * Questa funzione riduce la capacità attuale del sistema in base al consumo del dispositivo,
+ * imposta lo stato del dispositivo su spento e, se il dispositivo è di tipo Manuale, aggiorna
+ * l'orario di spegnimento. Inoltre, stampa un messaggio di spegnimento e aggiorna il consumo
+ * totale del dispositivo.
+ * 
+ * @param dispositivo Riferimento al dispositivo da spegnere.
+ */
 void Sistema::spegnimentoDispositivoHelper(Dispositivo &dispositivo)
 {
     capacita_attuale -= dispositivo.getConsumo();
